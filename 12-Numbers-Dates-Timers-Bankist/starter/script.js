@@ -21,8 +21,10 @@ const account1 = {
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
     '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    // '2020-07-11T23:36:17.929Z',
+    // '2020-07-12T10:51:36.790Z',
+    '2023-12-06T23:36:17.929Z',
+    '2023-12-09T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -42,7 +44,8 @@ const account2 = {
     '2020-02-05T16:33:06.386Z',
     '2020-04-10T14:43:26.374Z',
     '2020-06-25T18:49:59.371Z',
-    '2020-07-26T12:01:20.894Z',
+    // '2020-07-26T12:01:20.894Z',
+    '2023-12-09T12:01:20.894Z',
   ],
   currency: 'USD',
   locale: 'en-US',
@@ -84,28 +87,110 @@ const inputClosePin = document.querySelector('.form__input--pin');
 const fillZero = function (date) {
   return `${date}`.padStart(2, 0);
 }
-// 获取时间方法
-const getDate = function (params, isDate = true, isTime = false, isWeek = false) {
-  const now = params ? new Date(params) : new Date()
-  // 获取年月日 时分秒 星期
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  const sec = now.getSeconds();
-  const weeks = now.getDay();
-  // 组合时间
-  const date = `${year}${isWeek ? '-' : '/'}${fillZero(month)}${isWeek ? '-' : '/'}${fillZero(day)}`; // 两种不同的组合方式根据时间判断
-  const time = `${fillZero(hour)}:${fillZero(min)}:${fillZero(sec)}`;
-  const week = `${weeks ? weeks : 7}`;
+// 获取计时器
+
+/**
+ * 获取天数
+ * @param {* 当前时间} date1 
+ * @param {* 之前的时间} date2 
+ * @returns 
+ */
+const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+/**
+ * 自写获取时间方法
+ * @param {* 时间参数} calctDate 
+ * @param {* 年月日是否显示} isDate 
+ * @param {* 时分秒是否显示} isTime 
+ * @param {* 星期是否显示} isWeek 
+ * @returns 
+ */
+// const formatMovementDate = function (calctDate, isDate = true, isTime = false, isWeek = false) {
+//   // 获取年月日 时分秒 星期
+//   const year = calctDate.getFullYear();
+//   const month = calctDate.getMonth() + 1;
+//   const day = calctDate.getDate();
+//   const hour = calctDate.getHours();
+//   const min = calctDate.getMinutes();
+//   const sec = calctDate.getSeconds();
+//   const weeks = calctDate.getDay();
+//   // 组合时间
+//   const date = `${year}${isWeek ? '-' : '/'}${fillZero(month)}${isWeek ? '-' : '/'}${fillZero(day)}`; // 两种不同的组合方式根据时间判断
+//   const time = `${fillZero(hour)}:${fillZero(min)}:${fillZero(sec)}`;
+//   const week = `${weeks ? weeks : 7}`;
+//   // 需要什么值返回什么值
+//   if (isDate && isTime && isWeek) return `${date} ${time} ${week}`; // 返回年月日 时分秒 星期
+//   if (isDate && isTime) return `${date} ${time}`; // 只返回年月日 时分秒
+
+//   // 资金流水时间
+//   // 获取当前时间
+//   const now = new Date()
+//   const daysPassed = calcDaysPassed(now, calctDate);
+//   // 七天之前按照给定格式
+//   if (!daysPassed) return 'Today'; // 等于 0 就是 今天
+//   if (daysPassed === 1) return 'YesterDay'; // 等于 1 就是 昨天
+//   if (daysPassed <= 7) return `${daysPassed} days ago`; // 小于等于 7 就是 某天前
+//   // 七天之后显示年月日
+//   if (isDate) return date; // 只返回年月日
+// }
+
+/**
+ * 国际化获取时间方法
+ * @param {* 当前用户} acc 
+ * @param {* 当前时间} calctDate
+ * @param {* 是否为单个时间} isDate
+ * @returns 
+ */
+const intlFormatMovementDate = function (acc, calctDate, isDate = false) {
+  // 多个时间
+  let options1 = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric"
+  }
+  // 为单个时间的时候
+  let options2 = {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    // weekday: "long",
+    hour12: false,
+  }
+  options2 = isDate && Object.assign(options2, options1)
+  // 获取当前时间
+  // 传了三个参数：本地ios国际化语言编码，时间格式，当前时间
+  const date = new Intl.DateTimeFormat(acc.locale, isDate ? options2 : options1).format(calctDate);
+  // 获取天数
+  const now = new Date()
+  const daysPassed = calcDaysPassed(now, calctDate);
   // 需要什么值返回什么值
-  if (isDate && isTime && isWeek) return `${date} ${time} ${week}`; // 返回年月日 时分秒 星期
-  if (isDate && isTime) return `${date} ${time}`; // 只返回年月日 时分秒
-  if (isDate) return date; // 只返回年月日
+  if (isDate) return date; // 单个时间
+  // 七天之前按照给定格式
+  if (!daysPassed) return 'Today'; // 等于 0 就是 今天
+  if (daysPassed === 1) return 'YesterDay'; // 等于 1 就是 昨天
+  if (daysPassed <= 7) return `${daysPassed} days ago`; // 小于等于 7 就是 某天前
+  // 七天之后显示全部时间
+  return date;
 }
 
-// 显示资金流水方法
+/**
+ * 获取货币
+ * @param {* 货币的值} value 
+ * @param {* 某个地区的货币} lacale 
+ * @param {* 货币的单位} currency 
+ */
+const formatCur = function (value, lacale, currency) {
+  return new Intl.NumberFormat(lacale, {
+    style: 'currency',
+    currency: currency,
+  }).format(value)
+}
+
+/**
+ * 显示资金流水方法
+ * @param {* 当前用户} acc 
+ * @param {* 是否排序} sort 
+ */
 const displayMovements = function (acc, sort = false) {
   // 清理整个容器再添加新元素
   // Element.innerHTML 属性设置或获取 HTML 语法表示的元素的后代。
@@ -118,12 +203,17 @@ const displayMovements = function (acc, sort = false) {
     // 使用三元判断当前资金为存款还是取款
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     // 显示日期
-    const displayDatte = getDate(acc.movementsDates[i]);
+    const date = new Date(acc.movementsDates[i]);
+    // const displayDatte = formatMovementDate(date);
+    const displayDatte = intlFormatMovementDate(acc, date); // 国际化时间
+    // 货币获取
+    const formattedMov = formatCur(mov, acc.locale, acc.currency);
+    // 更新ui
     const html = `
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${i + 1}${type} deposit</div>
         <div class="movements__date">${displayDatte}</div>
-        <div class="movements__value">${mov.toFixed(2)}€</div>
+        <div class="movements__value">${formattedMov}</div>
       </div>    
     `
     // insertAdjacentHTML() 方法将指定的文本解析为 Element 元素，并将结果节点插入到 DOM 树中的指定位置。
@@ -136,10 +226,13 @@ const displayMovements = function (acc, sort = false) {
   });
 };
 
-// 计算并显示余额
+/**
+ * 计算并显示余额
+ * @param {* 当前用户} account 
+ */
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0); // 余额相加
-  labelBalance.textContent = `${account.balance.toFixed(2)}€`;
+  labelBalance.textContent = formatCur(account.balance, account.locale, account.currency); // 货币
 };
 
 // 计算存款总额, 提款总额, 银行利息
@@ -148,22 +241,27 @@ const calcDisplaySummary = function (account) {
   const incomes = account.movements
     .filter(mov => mov > 0) // 筛选出大于 0 的数
     .reduce((acc, mov) => acc + mov, 0); // 将它们加起来
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+  labelSumIn.textContent = formatCur(incomes, account.locale, account.currency);
+
   // 提款总额
   const out = account.movements
     .filter(mov => mov < 0) // 筛选出小于 0 的数
     .reduce((acc, mov) => acc + mov, 0); // 将它们加起来
-  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
+  labelSumOut.textContent = formatCur(out, account.locale, account.currency);
   // 银行利息:利息是存款金额的 几%
   const interest = account.movements
     .filter(mov => mov > 0) // 筛选出大于 0 的数
     .map(deposit => (deposit * account.interestRate) / 100) // 计算利息乘以 每个人的利息值 除以 100
     .filter(int => int > 1) // 银行支付利息，如果该利息至少为 1 欧元或者任何其他货币
     .reduce((acc, int) => acc + int, 0); // 将它们加起来
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCur(interest, account.locale, account.currency);
 };
 
 // P141、计算用户名
+/**
+ * 获取用户名：就是登录名
+ * @param {* 当前用户} accs 
+ */
 const createUserName = function (accs) {
   // 修改原对象数组——将每个对象新增一个userName属性
   accs.forEach(function (acc) {
@@ -199,12 +297,32 @@ const updateUI = function (acc) {
 let currentAccount; // 当前用户，定义在全局以便其他地方使用
 
 // 冒充登录
-// currentAccount = account1;
-// updateUI(currentAccount);
-// containerApp.style.opacity = 100;
-// // 设置当前余额截止时间
-// // params:时间参数, isDate:是否显示, isTime:是否显示, isWeek:是否显示
-// labelDate.textContent = getDate(null, true, true, true)
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+// 设置当前余额截止时间
+// params:时间参数, isDate:是否显示, isTime:是否显示, isWeek:是否显示
+const date = new Date(2023, 12, 6, 19, 0, 34);
+// labelDate.textContent = intlFormatMovementDate(currentAccount, date, true)
+// // P167、国际化日期(国际)
+// // 使用国际化时间
+// const options = {
+//   year: "numeric",
+//   month: "numeric",
+//   day: "numeric",
+//   hour: "numeric",
+//   minute: "numeric",
+//   second: "numeric",
+//   weekday: "long",
+//   hour12: false,
+// }
+// 传了三个参数：本地ios国际化语言编码，时间格式，当前时间
+// // labelDate.textContent = new Intl.DateTimeFormat('en-GB', options).format(date)
+// labelDate.textContent = new Intl.DateTimeFormat('zh-Hans-CN', options).format(date)
+
+
+// 现在的时间
+const now = new Date();
 
 // 登录
 btnLogin.addEventListener("click", function (e) {
@@ -227,7 +345,8 @@ btnLogin.addEventListener("click", function (e) {
 
     // 设置当前余额截止时间
     // params:时间参数, isDate:是否显示, isTime:是否显示, isWeek:是否显示
-    labelDate.textContent = getDate(null, true, true, true)
+    // labelDate.textContent = formatMovementDate(now, true, true, true)
+    labelDate.textContent = intlFormatMovementDate(currentAccount, now, true); // 国际化时间
 
     // 更新UI
     updateUI(currentAccount);
@@ -258,8 +377,8 @@ btnTransfer.addEventListener("click", function (e) {
     receiverAcc.movements.push(amount);
 
     // 接收人和转账人都要获取一个时间参数
-    currentAccount.movementsDates.push(new Date().toISOString());
-    receiverAcc.movementsDates.push(new Date().toISOString());
+    currentAccount.movementsDates.push(now.toISOString());
+    receiverAcc.movementsDates.push(now.toISOString());
 
     // 更新UI
     updateUI(currentAccount);
@@ -309,7 +428,7 @@ btnClose.addEventListener("click", function (e) {
 let sorted = false
 btnSort.addEventListener("click", function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted
 });
 
@@ -544,7 +663,7 @@ console.log(11 / 3); // 3.6666666666666665
 const future = new Date(2037, 10, 19, 15, 23, 45);
 // 以下为字符串
 console.log(future); // Thu Nov 19 2037 15:23:45 GMT+0800 (中国标准时间)
-// 国际标准IOS时间 
+// 国际标准IOS时间
 console.log(future.toISOString()); // 2037-11-19T07:23:45.000Z
 
 // 以下全是Number型
@@ -564,8 +683,33 @@ console.log(Date.now()); // 1702121096458
 // 设置时间
 future.setFullYear(1998) // 设置年, 还可以设置 月, 日, 星期, 时, 分, 秒 ,相应的 get 改为 set
 console.log(future); // Thu Nov 19 1998 15:23:45 GMT+0800 (中国标准时间)
+
+
+// P166、带日期的操作
+// 通过计算的方式将时间转为时间戳
+const future = new Date(2037, 10, 19, 15, 23);
+console.log(Number(future)); // 2142228180000
+console.log(+future); // 2142228180000
+
+// 获取两个时间之间间隔的天数（年月日）
+// 1000 * 60 * 60 * 24 一天的时间戳
+const calcDaysPassed = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 60 * 24);
+const day1 = calcDaysPassed(new Date(2037, 3, 4), new Date(2037, 3, 14));
+console.log(day1); // 10
+
+
+// P168、国际化数字（Intl）
+const num = 4232423.25;
+const options = {
+  style: "currency", // 货币
+  // unit: 'celsius', // 单位摄氏度
+  currency: 'CNY', // 货币: 人民币
+}
+
+console.log("US：", new Intl.NumberFormat('en-US', options).format(num)); // US： CN¥4,232,423.25
+console.log("Grmany：", new Intl.NumberFormat('de-DE', options).format(num)); // Grmany： 4.232.423,25 CN¥
+console.log("Syria：", new Intl.NumberFormat('ar-SY', options).format(num)); // Syria： ٤٬٢٣٢٬٤٢٣٫٢٥ CN¥
+console.log("China：", new Intl.NumberFormat('zh-Hans-CN', options).format(num)); // China： ¥4,232,423.25
+console.log(navigator.language, new Intl.NumberFormat(navigator.language, options).format(num)); // zh-CN ¥4,232,423.25
 */
-
-
-
 
