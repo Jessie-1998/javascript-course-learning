@@ -83,7 +83,11 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-// 补零函数
+/**
+ * 补零函数
+ * @param { String } date    时间
+ * @returns 
+ */
 const fillZero = function (date) {
   return `${date}`.padStart(2, 0);
 }
@@ -91,8 +95,8 @@ const fillZero = function (date) {
 
 /**
  * 获取天数
- * @param {* 当前时间} date1 
- * @param {* 之前的时间} date2 
+ * @param { String } date1 当前时间
+ * @param { String } date2 之前的时间
  * @returns 
  */
 const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
@@ -136,9 +140,9 @@ const calcDaysPassed = (date1, date2) => Math.round(Math.abs(date2 - date1) / (1
 
 /**
  * 国际化获取时间方法
- * @param {* 当前用户} acc 
- * @param {* 当前时间} calctDate
- * @param {* 是否为单个时间} isDate
+ * @param { Object } acc           当前用户
+ * @param { String } calctDate     当前时间
+ * @param { Boolean } isDate       是否为单个时间
  * @returns 
  */
 const intlFormatMovementDate = function (acc, calctDate, isDate = false) {
@@ -175,9 +179,9 @@ const intlFormatMovementDate = function (acc, calctDate, isDate = false) {
 
 /**
  * 获取货币
- * @param {* 货币的值} value 
- * @param {* 某个地区的货币} lacale 
- * @param {* 货币的单位} currency 
+ * @param { Number } value         货币的值
+ * @param { String } lacale        某个地区的货币
+ * @param { String } currency      货币的单位
  */
 const formatCur = function (value, lacale, currency) {
   return new Intl.NumberFormat(lacale, {
@@ -188,8 +192,8 @@ const formatCur = function (value, lacale, currency) {
 
 /**
  * 显示资金流水方法
- * @param {* 当前用户} acc 
- * @param {* 是否排序} sort 
+ * @param { Object } acc    当前用户
+ * @param { Boolean } sort  是否排序
  */
 const displayMovements = function (acc, sort = false) {
   // 清理整个容器再添加新元素
@@ -228,7 +232,7 @@ const displayMovements = function (acc, sort = false) {
 
 /**
  * 计算并显示余额
- * @param {* 当前用户} account 
+ * @param { Object } account  当前用户 
  */
 const calcDisplayBalance = function (account) {
   account.balance = account.movements.reduce((acc, mov) => acc + mov, 0); // 余额相加
@@ -260,7 +264,7 @@ const calcDisplaySummary = function (account) {
 // P141、计算用户名
 /**
  * 获取用户名：就是登录名
- * @param {* 当前用户} accs 
+ * @param { Object } accs    当前用户
  */
 const createUserName = function (accs) {
   // 修改原对象数组——将每个对象新增一个userName属性
@@ -290,6 +294,11 @@ const updateUI = function (acc) {
 
   // 显示汇总内容: 存款总额 提款总额 银行利息 —— 注意利息每个人的不同，并且在个人信息里面，所有要传整个个人信息对象
   calcDisplaySummary(acc);
+}
+
+// P170、实现一个倒计时计时器
+const startLogoutTimer=function () {
+  
 }
 
 // P148、实现登录功能
@@ -393,10 +402,13 @@ btnLoan.addEventListener("click", function (e) {
   const amount = Math.floor(inputLoanAmount.value); // 直接向下取整
   // 判断输入的内容大于0并且是资金流水中某一金额的10倍
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    // 贷款资金流水加一条记录
-    currentAccount.movements.push(amount);
-    // 顺便加一个时间
-    currentAccount.movementsDates.push(new Date().toISOString());
+    // 模拟银行放款延迟
+    setTimeout(function () {
+      // 贷款资金流水加一条记录
+      currentAccount.movements.push(amount);
+      // 顺便加一个时间
+      currentAccount.movementsDates.push(new Date().toISOString());
+    }, 2500);
     // 更新UI
     updateUI(currentAccount);
   } else {
@@ -711,5 +723,32 @@ console.log("Grmany：", new Intl.NumberFormat('de-DE', options).format(num)); /
 console.log("Syria：", new Intl.NumberFormat('ar-SY', options).format(num)); // Syria： ٤٬٢٣٢٬٤٢٣٫٢٥ CN¥
 console.log("China：", new Intl.NumberFormat('zh-Hans-CN', options).format(num)); // China： ¥4,232,423.25
 console.log(navigator.language, new Intl.NumberFormat(navigator.language, options).format(num)); // zh-CN ¥4,232,423.25
+
+
+// P169、定时器setTimeout和setInterval
+// setTimeout
+let ingredients = ['olives', 'spinach']; // 包含 "spinach"
+ingredients = ['olives', 'beef']; // 不包含 "spinach"
+// 三秒后显示打印内容
+const pizzaTimer = setTimeout((ing1, ing2) => {
+  console.log(`Here is your pizza with ${ing1} and ${ing2} 🍕`);
+}, 3000, ...ingredients);
+console.log("Waiting...");
+// 如果包含"spinach", 清除定时器
+if (ingredients.includes('spinach')) clearTimeout(pizzaTimer);
+
+// setInterval
+// 每秒打印一次现在的时间
+const dateTimer = setInterval(() => {
+  const now = new Date();
+  console.log(now);
+}, 1000);
+// 清除定时器
+clearInterval(dateTimer)
 */
+
+
+
+
+
 
