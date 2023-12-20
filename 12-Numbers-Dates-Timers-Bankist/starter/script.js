@@ -297,18 +297,39 @@ const updateUI = function (acc) {
 }
 
 // P170、实现一个倒计时计时器
-const startLogoutTimer=function () {
-  
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);// 获取分钟数
+    const second = String(time % 60).padStart(2, 0);// 获取秒钟数
+    // 在每个回调调用中, 打印剩余时间到UI
+    labelTimer.textContent = `${min}:${second}`;
+    // 当时间为0时, 停止计时器并注销用户
+    if (time === 0) {
+      clearInterval(timer)
+      // 显示UI界面和欢迎信息
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Log in to get started'; // 欢迎信息 —— 先将姓名转为数组，然后取第一个单词也就是名
+    }
+    time--
+  };
+  // 设置一个五分钟的时间
+  let time = 100; // 100秒
+  // 直接调用一次主要解决重新登录的时候从上一次计时器清除的位置开始计时的问题, 比如从0开始
+  tick()
+  // 每秒调用一次定时器
+  let timer = setInterval(tick, 1000); // 定时器中的 1000为1秒
+  // 返回一个定时器主要用于切换用户的时候判断是否有定时器存在, 不然会有几个定时器同时工作
+  return timer;
 }
 
 // P148、实现登录功能
 // 事件处理
-let currentAccount; // 当前用户，定义在全局以便其他地方使用
+let currentAccount, timer; // 当前用户，定义在全局以便其他地方使用
 
 // 冒充登录
 currentAccount = account1;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
 // 设置当前余额截止时间
 // params:时间参数, isDate:是否显示, isTime:是否显示, isWeek:是否显示
 const date = new Date(2023, 12, 6, 19, 0, 34);
@@ -359,6 +380,11 @@ btnLogin.addEventListener("click", function (e) {
 
     // 更新UI
     updateUI(currentAccount);
+
+    // 如果有定时器先清除定时器
+    if (timer) clearInterval(timer);
+    // 登录倒计时, 到点登出
+    timer = startLogOutTimer();
   } else {
     console.log("用户名或者密码错误");
   }
@@ -391,6 +417,10 @@ btnTransfer.addEventListener("click", function (e) {
 
     // 更新UI
     updateUI(currentAccount);
+
+    // 转账时重置定时器然后重开一个
+    clearInterval(timer);
+    timer = startLogOutTimer();
   } else {
     console.log("信息错误，无法转账");
   }
@@ -408,9 +438,13 @@ btnLoan.addEventListener("click", function (e) {
       currentAccount.movements.push(amount);
       // 顺便加一个时间
       currentAccount.movementsDates.push(new Date().toISOString());
+      // 更新UI
+      updateUI(currentAccount);
+
+      // 贷款时重置定时器然后重开一个
+      clearInterval(timer);
+      timer = startLogOutTimer();
     }, 2500);
-    // 更新UI
-    updateUI(currentAccount);
   } else {
     console.log("输入有误");
   }
