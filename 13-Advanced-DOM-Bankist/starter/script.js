@@ -124,9 +124,47 @@ logo.classList.contains('x'); // 不包含
 // logo.className = 'xiaojiu'; // 会覆盖之前的类名
 */
 
+/*
+// P176、实现平滑滚动
+const btnScrollTo = document.querySelector('.btn--scroll-to')
+const section1 = document.querySelector('#section--1')
+
+btnScrollTo.addEventListener('click', function (e) {
+  const s1Coords = section1.getBoundingClientRect(); // section1元素的大小及相对视口的位置
+  console.log(s1Coords);
+  console.log(e.target.getBoundingClientRect()); // 点击事件元素的大小及相对视口的位置
+  console.log(window.pageXOffset, window.pageYOffset); // 页面水平垂直滚动的像素
+  console.log(document.documentElement.clientHeight, document.documentElement.clientWidth); // 当前窗口的高度和宽度
+
+  // window.scrollTo(s1Coords.left, s1Coords.top); // 页面滚动到某个位置（此时只用了section1距离窗口顶部的距离）
+  // window.scrollTo(s1Coords.left + window.pageXOffset, s1Coords.top + window.pageYOffset); // 页面滚动到某个位置
+  // window.scrollTo({
+  //   left: s1Coords.left + window.pageXOffset,
+  //   top: s1Coords.top + window.pageYOffset,
+  //   behavior: 'smooth'
+  // }); // 页面平滑滚动到某个位置
+
+  section1.scrollIntoView({ behavior: 'smooth' }); // 滚动元素的父容器，使被调用的元素对用户可见
+});
 
 
+// P177、事件类型和事件处理程序
+const h1 = document.querySelector('h1');
 
+const alertH1 = function (e) {
+  alert("addEventListener: 你正在读标题！");
+  h1.removeEventListener('mouseenter', alertH1); // 移除事件
+}
+// 方式一: addEventListener
+h1.addEventListener('mouseenter', alertH1); // 设置事件
 
+// 三秒后移除事件
+// setTimeout(() => {
+//   h1.removeEventListener('mouseenter', alertH1); // 移除事件
+// }, 3000);
 
-
+// 方式二: onmouseenter
+// h1.onmouseenter = function (e) {
+//   alert("onmouseenter: 你正在读标题！")
+// }
+*/
